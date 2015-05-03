@@ -72,10 +72,43 @@ void initelk(int argc, char *argv[])
         p[0]=0;
         discname[0]=discname2[0]=tapename[0]=0;
 //        printf("Load config\n");
+
+        c = 1;
+        char tempFileName[_MAX_PATH_WITH_NULL];
+        if (c < argc - 1 && strcasecmp(argv[c], "--conf") == 0)
+        {
+            ++c;
+            strcpy(tempFileName, argv[c]);
+            ++c;
+        }
+        else
+        {
+            if (!pathJoin(
+                exedir,
+                "elk.cfg",
+                tempFileName,
+                COUNTOF(tempFileName)))
+            {
+                TRACE("! pathJoin failed\n");
+                abort();
+            }
+        }
+
+        if (!pathResolve(
+            tempFileName,
+            g_configurationFileName,
+            COUNTOF(g_configurationFileName),
+            NULL))
+        {
+            TRACE("! pathResolve failed\n");
+            abort();
+        }
+
         loadconfig();
+
 //printf("commandline\n");
 
-        for (c=1;c<argc;c++)
+        for (; c < argc; ++c)
         {
 //printf("%i\n",c); fflush(stdout);
 //                printf("%i : %s\n",c,argv[c]);

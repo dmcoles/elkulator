@@ -5,6 +5,7 @@ extern "C" {
 #include <stdint.h>
 #include <allegro.h>
 #include <stdio.h>
+#include "path.h"
 
 #define printf rpclog
 
@@ -200,6 +201,7 @@ extern int discspd;
 extern int motorspin;
 
 char exedir[512];
+char g_configurationFileName[_MAX_PATH_WITH_NULL];
 
 void initelk();
 void closeelk();

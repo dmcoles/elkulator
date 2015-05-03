@@ -81,9 +81,16 @@ void loadconfig()
         char *s;
         int c;
         char s2[20];
-        char fn[256];
-        sprintf(fn,"%s/elk.cfg",exedir);
-        cfgfile=fopen(fn,"rt");
+
+        cfgfile = fopen(g_configurationFileName, "rt");
+        if (cfgfile == NULL)
+        {
+            TRACE("! Failed to open configuration file %s\n", g_configurationFileName);
+            return;
+        }
+
+        TRACE("! Loading settings from configuration file %s\n", g_configurationFileName);
+
         tapespeed=getintcfg("tapespeed",0);
         plus1=getintcfg("plus1",0);
         plus3=getintcfg("plus3",0);
@@ -138,9 +145,16 @@ void saveconfig()
 {
         int c;
         char s[20];
-        char fn[256];
-        sprintf(fn,"%s/elk.cfg",exedir);
-        cfgfile=fopen(fn,"wt");
+
+        cfgfile = fopen(g_configurationFileName, "wt");
+        if (cfgfile == NULL)
+        {
+            TRACE("! Failed to open configuration file %s\n", g_configurationFileName);
+            return;
+        }
+
+        TRACE("! Saving settings to configuration file %s\n", g_configurationFileName);
+
         writeintcfg("tapespeed",tapespeed);
         writeintcfg("plus1",plus1);
         writeintcfg("plus3",plus3);
