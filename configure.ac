@@ -4,7 +4,7 @@
 AC_PREREQ([2.61])
 AC_INIT(Elkulator, 1.0, Tom Walker <b-em@bbcmicro.com>, elkulator)
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_CC_C_O
@@ -49,4 +49,5 @@ AC_CHECK_LIB([alut], [alutInit], [], \
 
 AC_CHECK_LIB([m], [fmod], [], [AC_MSG_ERROR([Could not find libm])])
 
-AC_OUTPUT([Makefile src/Makefile])
+AC_OUTPUT([Makefile src/Makefile test/Makefile])
+

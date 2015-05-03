@@ -10,10 +10,13 @@ config.status
 configure
 depcomp
 elkulator
+elkulator-test
 install-sh
 missing
 src/.deps/
+src/.dirstamp
 src/Makefile
 src/Makefile.in
 src/elkulator
-
+test/.deps
+test/elkulator-test
