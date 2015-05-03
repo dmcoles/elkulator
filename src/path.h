@@ -28,4 +28,9 @@ bool pathResolve(
     size_t resultSize,
     bool *pathExists);
 
+bool pathDir(
+    char const *path,
+    char *result,
+    size_t resultSize);
+
 #endif

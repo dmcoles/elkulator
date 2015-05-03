@@ -19,11 +19,13 @@ class PathTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE(PathTest);
     CPPUNIT_TEST(join);
     CPPUNIT_TEST(resolve);
+    CPPUNIT_TEST(dir);
     CPPUNIT_TEST_SUITE_END();
 
 public:
     void join();
     void resolve();
+    void dir();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PathTest);
@@ -113,4 +115,24 @@ void PathTest::resolve()
     formatExpectedPath(expectedPath.data(), currentDir.data(), "foo.txt");
     CPPUNIT_ASSERT(strcmp(expectedPath.data(), path.data()) == 0);
     CPPUNIT_ASSERT(!pathExists);
+}
+
+void PathTest::dir()
+{
+    bool result;
+    array<char, _MAX_PATH_WITH_NULL> path;
+
+    path[0] = 'A';
+    result = pathDir("/aaa/bbb/ccc", path.data(), 0);
+    CPPUNIT_ASSERT(!result);
+    CPPUNIT_ASSERT(path[0] == 'A');
+
+    path[0] = 'A';
+    result = pathDir("/aaa/bbb/ccc", path.data(), 1);
+    CPPUNIT_ASSERT(!result);
+    CPPUNIT_ASSERT(path[0] == '\0');
+
+    result = pathDir("/aaa/bbb/ccc", path.data(), path.size());
+    CPPUNIT_ASSERT(result);
+    CPPUNIT_ASSERT(strcmp("/aaa/bbb", path.data()) == 0);
 }

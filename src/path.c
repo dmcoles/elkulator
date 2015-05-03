@@ -4,7 +4,7 @@
  */
 
 #include <errno.h>
-#include <unistd.h>
+#include <libgen.h>
 #include <string.h>
 #ifdef WIN32
 #include <sys/stat.h>
@@ -114,6 +114,36 @@ Error:
         *pathExists = false;
     }
 
+    return false;
+}
+
+bool pathDir(
+    char const *path,
+    char *result,
+    size_t resultSize)
+{
+    if (path == NULL || result == NULL || resultSize < 1)
+    {
+        return false;
+    }
+
+    size_t pathLength = strlen(path);
+
+    if (resultSize <= pathLength)
+    {
+        goto Error;
+    }
+
+    strcpy(result, path);
+    if (dirname(result) != result)
+    {
+        goto Error;
+    }
+
+    return true;
+
+Error:
+    result[0] = '\0';
     return false;
 }
 
