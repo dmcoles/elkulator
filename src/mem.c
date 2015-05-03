@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "elk.h"
+#include "sideways_bank.h"
 
 int FASTLOW=0;
 int FASTHIGH2=0;
@@ -16,65 +17,95 @@ int mrbmapped=0;
 int plus1=0;
 uint8_t readkeys(uint16_t addr);
 uint8_t ram[32768],ram2[32768];
-uint8_t os[16384],mrbos[16384];
-uint8_t basic[16384],adfs[16384],dfs[16384];
-uint8_t rom12[16384],rom13[16384],ram6[16384];
-uint8_t sndrom[16384];
-uint8_t plus1rom[16384];
+
+uint8_t os[SIDEWAYS_BANK_SIZE];
+uint8_t mrbos[SIDEWAYS_BANK_SIZE];
+
 uint8_t sndlatch;
 int snden=0;
-int usedrom6=0;
+int usedrom6 = 0;
+int usedrom7 = 0;
+
+static void clearRom(uint8_t *buffer)
+{
+    memset(buffer, 0, SIDEWAYS_BANK_SIZE);
+}
+
+static void loadRom(char const *path, uint8_t *buffer)
+{
+    FILE *f = fopen(path, "rb");
+    if (f == NULL)
+    {
+        TRACE("! Failed to load ROM image %s\n", path);
+        abort();
+    }
+
+    fread(buffer, SIDEWAYS_BANK_SIZE, 1, f);
+    fclose(f);
+}
 
 void loadroms()
 {
-        FILE *f;
-        char path[512],p2[512];
-        getcwd(p2,511);
-        sprintf(path,"%sroms",exedir);
-        printf("path now %s\n",path);
-        chdir(path);
-        f=fopen("os","rb");
-        fread(os,16384,1,f);
-        fclose(f);
-        f=fopen("os300.rom","rb");
-        fread(mrbos,16384,1,f);
-        fclose(f);
-        f=fopen("basic.rom","rb");
-        fread(basic,16384,1,f);
-        fclose(f);
-        f=fopen("adfs.rom","rb");
-        fread(adfs,16384,1,f);
-        fclose(f);
-        f=fopen("dfs.rom","rb");
-        fread(dfs,16384,1,f);
-        fclose(f);
-        f=fopen("sndrom","rb");
-        fread(sndrom,16384,1,f);
-        fclose(f);
-        f=fopen("plus1.rom","rb");
-        fread(plus1rom,16384,1,f);
-        fclose(f);
-        chdir(p2);
+    char configurationDir[_MAX_PATH_WITH_NULL];
+    char fullPath[_MAX_PATH_WITH_NULL];
+
+    if (!pathDir(g_configurationFileName, configurationDir, COUNTOF(configurationDir)))
+    {
+        TRACE("! pathDir failed\n");
+        abort();
+    }
+
+    if (!pathJoin(configurationDir, os_rom_path, fullPath, COUNTOF(fullPath)))
+    {
+        TRACE("! pathJoin failed\n");
+        abort();
+    }
+
+    loadRom(fullPath, os);
+
+    if (!pathJoin(configurationDir, mrb_os_rom_path, fullPath, COUNTOF(fullPath)))
+    {
+        TRACE("! pathJoin failed\n");
+        abort();
+    }
+
+    loadRom(fullPath, mrbos);
+
+    int i;
+    SidewaysBankInfo *sidewaysBank;
+    size_t pathLength;
+    for (i = COUNTOF(g_sidewaysBanks) - 1; i >= 0; --i)
+    {
+        sidewaysBank = g_sidewaysBanks + i;
+        pathLength = strlen(sidewaysBank->path);
+        if (pathLength > 0)
+        {
+            if (!pathJoin(configurationDir, sidewaysBank->path, fullPath, COUNTOF(fullPath)))
+            {
+                TRACE("! pathJoin failed\n");
+                abort();
+            }
+
+            loadRom(fullPath, g_sidewaysBanks[i].data);
+            TRACE("! Loaded sideways image from %s into slot %X\n", fullPath, i);
+        }
+    }
 }
 
 void loadcart(char *fn)
 {
-        FILE *f=fopen(fn,"rb");
-        fread(rom12,16384,1,f);
-        fclose(f);
+    loadRom(fn, SIDEWAYS_DATA(0));
 }
 
 void loadcart2(char *fn)
 {
-        FILE *f=fopen(fn,"rb");
-        fread(rom13,16384,1,f);
-        fclose(f);
+    loadRom(fn, SIDEWAYS_DATA(1));
 }
 
 void unloadcart()
 {
-        memset(rom12,0,16384);
-        memset(rom13,0,16384);
+    clearRom(SIDEWAYS_DATA(0));
+    clearRom(SIDEWAYS_DATA(1));
 }
 
 void dumpram()
@@ -113,17 +144,63 @@ uint8_t readmem(uint16_t addr)
         {
                 if (!extrom)
                 {
-                        if (intrombank&2) return basic[addr&0x3FFF];
+                        if (intrombank & 2)
+                        {
+                            return SIDEWAYS_BYTE(B, addr & 0x3FFF);
+                        }
+
                         return readkeys(addr);
                 }
-                if (rombank==0x0) return rom12[addr&0x3FFF];
-                if (rombank==0x1) return rom13[addr&0x3FFF];
-                if (plus1 && rombank==0xC) return plus1rom[addr&0x3FFF];
-                if (sndex && rombank==0xD) return sndrom[addr&0x3FFF];
-                if (rombank==0xF && plus3 && adfsena) return adfs[addr&0x3FFF];
-                if (rombank==0x3 && plus3 && dfsena)  return dfs[addr&0x3FFF];
-                if (rombank==0x6) return ram6[addr&0x3FFF];
-//                if (rombank==0) return game[addr&0x3FFF];
+
+                if (rombank == SIDEWAYS_BANK_0)
+                {
+                    return SIDEWAYS_BYTE(0, addr & 0x3FFF);
+                }
+                else if (rombank == SIDEWAYS_BANK_1)
+                {
+                    return SIDEWAYS_BYTE(1, addr & 0x3FFF);
+                }
+                else if (rombank == SIDEWAYS_BANK_4)
+                {
+                    return SIDEWAYS_BYTE(4, addr & 0x3FFF);
+                }
+                else if (rombank == SIDEWAYS_BANK_5)
+                {
+                    return SIDEWAYS_BYTE(5, addr & 0x3FFF);
+                }
+                else if (rombank == SIDEWAYS_BANK_6)
+                {
+                    return SIDEWAYS_BYTE(6, addr & 0x3FFF);
+                }
+                else if (rombank == SIDEWAYS_BANK_7)
+                {
+                    return SIDEWAYS_BYTE(7, addr & 0x3FFF);
+                }
+
+                // 3: DFS (RAM)
+                if (rombank == SIDEWAYS_BANK_3 && plus3 && dfsena)
+                {
+                    return SIDEWAYS_BYTE(3, addr & 0x3FFF);
+                }
+
+                // C: Plus 1 Expansion (ROM)
+                if (plus1 && rombank == SIDEWAYS_BANK_C)
+                {
+                    return SIDEWAYS_BYTE(C, addr & 0x3FFF);
+                }
+
+                // D: Sound Expansion (RAM)
+                if (sndex && rombank == SIDEWAYS_BANK_D)
+                {
+                    return SIDEWAYS_BYTE(D, addr & 0x3FFF);
+                }
+
+                // F: ADFS (ROM)
+                if (rombank == SIDEWAYS_BANK_F && plus3 && adfsena)
+                {
+                    return SIDEWAYS_BYTE(F, addr & 0x3FFF);
+                }
+
                 return addr>>8;
         }
         if ((addr&0xFF00)==0xFC00 || (addr&0xFF00)==0xFD00)
@@ -185,9 +262,28 @@ void writemem(uint16_t addr, uint8_t val)
         }
         if (addr<0xC000)
         {
-                if (extrom && rombank==0xD && (addr&0x2000)) sndrom[addr&0x3FFF]=val;
-                if (extrom && rombank==0x3 && plus3 && dfsena) dfs[addr&0x3FFF]=val;
-                if (extrom && rombank==0x6) { ram6[addr&0x3FFF]=val; usedrom6=1; }
+                // 3: DFS (RAM)
+                if (extrom && rombank == SIDEWAYS_BANK_3 && plus3 && dfsena)
+                {
+                    SIDEWAYS_BYTE(3, addr & 0x3FFF) = val;
+                }
+
+                // D: Sound Expansion (RAM)
+                if (extrom && rombank == SIDEWAYS_BANK_D && (addr & 0x2000))
+                {
+                    SIDEWAYS_BYTE(D, addr & 0x3FFF) = val;
+                }
+
+                if (extrom && rombank == SIDEWAYS_BANK_6)
+                {
+                    SIDEWAYS_BYTE(6, addr & 0x3FFF) = val;
+                    usedrom6 = 1;
+                }
+                else if (extrom && rombank == SIDEWAYS_BANK_7)
+                {
+                    SIDEWAYS_BYTE(7, addr & 0x3FFF) = val;
+                    usedrom7 = 1;
+                }
         }
         if ((addr&0xFF00)==0xFE00) writeula(addr,val);
         if ((addr&0xFFF8)==0xFCC0 && plus3) write1770(addr,val);
@@ -310,9 +406,25 @@ void savememstate(FILE *f)
             fwrite(ram2, 1, COUNTOF(ram2), f);
         }
 
-        if (plus3 && dfsena) fwrite(dfs,16384,1,f);
-        if (sndex)  fwrite(sndrom,16384,1,f);
-        if (usedrom6) fwrite(ram6,16384,1,f);
+        if (plus3 && dfsena)
+        {
+            fwrite(SIDEWAYS_DATA(3), 1, SIDEWAYS_BANK_SIZE, f);
+        }
+
+        if (sndex)
+        {
+            fwrite(SIDEWAYS_DATA(D), 1, SIDEWAYS_BANK_SIZE, f);
+        }
+
+        if (usedrom6)
+        {
+            fwrite(SIDEWAYS_DATA(6), 1, SIDEWAYS_BANK_SIZE, f);
+        }
+
+        if (usedrom7)
+        {
+            fwrite(SIDEWAYS_DATA(7), 1, SIDEWAYS_BANK_SIZE, f);
+        }
 }
 
 void loadmemstate(FILE *f)
@@ -324,8 +436,24 @@ void loadmemstate(FILE *f)
             fread(ram2, 1, COUNTOF(ram2), f);
         }
 
-        if (plus3 && dfsena) fread(dfs,16384,1,f);
-        if (sndex)  fread(sndrom,16384,1,f);
-        if (usedrom6) fread(ram6,16384,1,f);
+        if (plus3 && dfsena)
+        {
+            fread(SIDEWAYS_DATA(3), 1, SIDEWAYS_BANK_SIZE, f);
+        }
+
+        if (sndex)
+        {
+            fread(SIDEWAYS_DATA(D), 1, SIDEWAYS_BANK_SIZE, f);
+        }
+
+        if (usedrom6)
+        {
+            fread(SIDEWAYS_DATA(6), 1, SIDEWAYS_BANK_SIZE, f);
+        }
+
+        if (usedrom7)
+        {
+            fread(SIDEWAYS_DATA(7), 1, SIDEWAYS_BANK_SIZE, f);
+        }
 }
 

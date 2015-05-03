@@ -67,6 +67,9 @@ extern int mrb,mrbmode,mrbmapped;
 void error(const char *format, ...);
 //void rpclog(const char *format, ...);
 
+extern char os_rom_path[_MAX_PATH_WITH_NULL];
+extern char mrb_os_rom_path[_MAX_PATH_WITH_NULL];
+
 extern char discname[260];
 extern char discname2[260];
 extern int discchanged[2];

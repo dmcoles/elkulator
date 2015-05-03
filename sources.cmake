@@ -11,6 +11,7 @@ set(OBJ_SOURCE_FILES
   ${SOURCE_DIR}/ddnoise.c
   ${SOURCE_DIR}/debugger.c
   ${SOURCE_DIR}/disc.c
+  ${SOURCE_DIR}/elk.c
   ${SOURCE_DIR}/elk.h
   ${SOURCE_DIR}/elkwin.rc
   ${SOURCE_DIR}/fdi.c
@@ -28,6 +29,8 @@ set(OBJ_SOURCE_FILES
   ${SOURCE_DIR}/resources.h
   ${SOURCE_DIR}/savestate.c
   ${SOURCE_DIR}/scale2x.c
+  ${SOURCE_DIR}/sideways_bank.c
+  ${SOURCE_DIR}/sideways_bank.h
   ${SOURCE_DIR}/sound.c
   ${SOURCE_DIR}/soundopenal.c
   ${SOURCE_DIR}/ssd.c

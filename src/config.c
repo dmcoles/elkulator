@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "elk.h"
+#include "sideways_bank.h"
 
 FILE *cfgfile;
 char cfgbuffer[1024];
@@ -83,6 +84,79 @@ void writeintcfg(char *name, int i)
         fprintf(cfgfile,"%s = %i\n",name,i);
 }
 
+static void loadSidewaysBankConfig()
+{
+    char *s;
+    int i;
+    char key[20];
+    SidewaysBankInfo *sidewaysBank;
+    char const *colonIndex;
+    int typeLength;
+
+    for (i = COUNTOF(g_sidewaysBanks) - 1; i >= 0; --i)
+    {
+        sidewaysBank = g_sidewaysBanks + i;
+
+        sprintf(key, "sideways_bank_%X", i);
+        s = getstringcfg(key);
+        if (s == NULL)
+        {
+            sidewaysBank->type = SidewaysBankType_Empty;
+            sidewaysBank->path[0] = '\0';
+        }
+        else
+        {
+            colonIndex = strchr(s, ':');
+            typeLength = (int)(colonIndex - s);
+
+            if (strncmp("empty", s, typeLength) == 0)
+            {
+                sidewaysBank->type = SidewaysBankType_Empty;
+            }
+            else if (strncmp("ram", s, typeLength) == 0)
+            {
+                sidewaysBank->type = SidewaysBankType_Ram;
+            }
+            else if (strncmp("rom", s, typeLength) == 0)
+            {
+                sidewaysBank->type = SidewaysBankType_Rom;
+            }
+            else
+            {
+                TRACE("! Unsupported sideways bank type '%.*s'\n", typeLength, s);
+                abort();
+            }
+
+            strcpy(sidewaysBank->path, colonIndex + 1);
+        }
+    }
+}
+
+static void saveSidewaysBankConfig()
+{
+    int i;
+    char key[20];
+    char value[_MAX_PATH_WITH_NULL];
+
+    for (i = COUNTOF(g_sidewaysBanks) - 1; i >= 0; --i)
+    {
+        char const *typeStr;
+        switch (g_sidewaysBanks[i].type)
+        {
+        case SidewaysBankType_Empty: typeStr = "empty"; break;
+        case SidewaysBankType_Ram: typeStr = "ram"; break;
+        case SidewaysBankType_Rom: typeStr = "rom"; break;
+        default:
+            TRACE("! Invalid sideways bank type\n");
+            abort();
+        }
+
+        sprintf(key, "sideways_bank_%X", i);
+        sprintf(value, "%s:%s", typeStr, g_sidewaysBanks[i].path);
+        writestringcfg(key, value);
+    }
+}
+
 void loadconfig()
 {
         char *s;
@@ -97,6 +171,20 @@ void loadconfig()
         }
 
         TRACE("! Loading settings from configuration file %s\n", g_configurationFileName);
+
+        s = getstringcfg("os_rom_path");
+        if (s != NULL)
+        {
+            strcpy(os_rom_path, s);
+        }
+
+        s = getstringcfg("mrb_os_rom_path");
+        if (s != NULL)
+        {
+            strcpy(mrb_os_rom_path, s);
+        }
+
+        loadSidewaysBankConfig();
 
         tapespeed=getintcfg("tapespeed",0);
         plus1=getintcfg("plus1",0);
@@ -161,6 +249,11 @@ void saveconfig()
         }
 
         TRACE("! Saving settings to configuration file %s\n", g_configurationFileName);
+
+        writestringcfg("os_rom_path", os_rom_path);
+        writestringcfg("mrb_os_rom_path", mrb_os_rom_path);
+
+        saveSidewaysBankConfig();
 
         writeintcfg("tapespeed",tapespeed);
         writeintcfg("plus1",plus1);
