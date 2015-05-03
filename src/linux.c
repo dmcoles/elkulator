@@ -44,6 +44,15 @@ int main(int argc, char *argv[])
         while (!quited)
         {
                 runelk();
+
+#if DEBUGMODE
+                if (key[KEY_F1])
+                {
+                    gui_exit();
+                    continue;
+                }
+#endif
+
                 if (key[KEY_F11]) entergui();
         }
         closeelk();
