@@ -22,33 +22,37 @@ bool pathJoin(
     result[0] = '\0';
 
     size_t remainingLength = resultSize - 1;
-    size_t length;
+    size_t path1Length = strlen(path1);
 
-    length = strlen(path0);
-    if (length > remainingLength)
+    bool isAbsolute = path1Length > 0 && path1[0] == '/';
+
+    if (!isAbsolute)
     {
-        goto Error;
+        size_t path0Length = strlen(path0);
+
+        if (path0Length > remainingLength)
+        {
+            goto Error;
+        }
+
+        strcat(result, path0);
+        remainingLength -= path0Length;
+
+        if (remainingLength < 1)
+        {
+            goto Error;
+        }
+
+        strcat(result, "/");
+        remainingLength -= 1;
     }
 
-    strcat(result, path0);
-    remainingLength -= length;
-
-    if (remainingLength < 1)
-    {
-        goto Error;
-    }
-
-    strcat(result, "/");
-    remainingLength -= 1;
-
-    length = strlen(path1);
-    if (length > remainingLength)
+    if (path1Length > remainingLength)
     {
         goto Error;
     }
 
     strcat(result, path1);
-    remainingLength -= length;
     return true;
 
 Error:

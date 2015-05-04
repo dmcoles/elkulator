@@ -30,6 +30,10 @@ static void pathJoinTest()
     result = pathJoin(".", "foo.txt", path, COUNTOF(path));
     assert(result);
     assert(strcmp("./foo.txt", path) == 0);
+
+    result = pathJoin("/aaa/bbb/ccc", "/xxx/yyy/zzz", path, COUNTOF(path));
+    assert(result);
+    assert(strcmp("/xxx/yyy/zzz", path) == 0);
 }
 
 static void pathResolveTest()
