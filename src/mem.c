@@ -23,8 +23,6 @@ uint8_t mrbos[SIDEWAYS_BANK_SIZE];
 
 uint8_t sndlatch;
 int snden=0;
-int usedrom6 = 0;
-int usedrom7 = 0;
 
 static void clearRom(uint8_t *buffer)
 {
@@ -277,12 +275,10 @@ void writemem(uint16_t addr, uint8_t val)
                 if (extrom && rombank == SIDEWAYS_BANK_6)
                 {
                     SIDEWAYS_BYTE(6, addr & 0x3FFF) = val;
-                    usedrom6 = 1;
                 }
                 else if (extrom && rombank == SIDEWAYS_BANK_7)
                 {
                     SIDEWAYS_BYTE(7, addr & 0x3FFF) = val;
-                    usedrom7 = 1;
                 }
         }
         if ((addr&0xFF00)==0xFE00) writeula(addr,val);
@@ -406,25 +402,7 @@ void savememstate(FILE *f)
             fwrite(ram2, 1, COUNTOF(ram2), f);
         }
 
-        if (plus3 && dfsena)
-        {
-            fwrite(SIDEWAYS_DATA(3), 1, SIDEWAYS_BANK_SIZE, f);
-        }
-
-        if (sndex)
-        {
-            fwrite(SIDEWAYS_DATA(D), 1, SIDEWAYS_BANK_SIZE, f);
-        }
-
-        if (usedrom6)
-        {
-            fwrite(SIDEWAYS_DATA(6), 1, SIDEWAYS_BANK_SIZE, f);
-        }
-
-        if (usedrom7)
-        {
-            fwrite(SIDEWAYS_DATA(7), 1, SIDEWAYS_BANK_SIZE, f);
-        }
+        fwrite(g_sidewaysBanks, 1, sizeof(g_sidewaysBanks), f);
 }
 
 void loadmemstate(FILE *f)
@@ -436,24 +414,6 @@ void loadmemstate(FILE *f)
             fread(ram2, 1, COUNTOF(ram2), f);
         }
 
-        if (plus3 && dfsena)
-        {
-            fread(SIDEWAYS_DATA(3), 1, SIDEWAYS_BANK_SIZE, f);
-        }
-
-        if (sndex)
-        {
-            fread(SIDEWAYS_DATA(D), 1, SIDEWAYS_BANK_SIZE, f);
-        }
-
-        if (usedrom6)
-        {
-            fread(SIDEWAYS_DATA(6), 1, SIDEWAYS_BANK_SIZE, f);
-        }
-
-        if (usedrom7)
-        {
-            fread(SIDEWAYS_DATA(7), 1, SIDEWAYS_BANK_SIZE, f);
-        }
+        fread(g_sidewaysBanks, 1, sizeof(g_sidewaysBanks), f);
 }
 
