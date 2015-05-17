@@ -258,25 +258,26 @@ void writemem(uint16_t addr, uint8_t val)
                 ram[addr]=val;
                 return;
         }
-        if (addr<0xC000)
+        if (addr < 0xC000 && extrom)
         {
                 // 3: DFS (RAM)
-                if (extrom && rombank == SIDEWAYS_BANK_3 && plus3 && dfsena)
+                if (rombank == SIDEWAYS_BANK_3 && plus3 && dfsena)
                 {
                     SIDEWAYS_BYTE(3, addr & 0x3FFF) = val;
                 }
 
                 // D: Sound Expansion (RAM)
-                if (extrom && rombank == SIDEWAYS_BANK_D && (addr & 0x2000))
+                if (rombank == SIDEWAYS_BANK_D && (addr & 0x2000))
                 {
                     SIDEWAYS_BYTE(D, addr & 0x3FFF) = val;
                 }
 
-                if (extrom && rombank == SIDEWAYS_BANK_6)
+                if (rombank == SIDEWAYS_BANK_6)
                 {
                     SIDEWAYS_BYTE(6, addr & 0x3FFF) = val;
                 }
-                else if (extrom && rombank == SIDEWAYS_BANK_7)
+
+                if (rombank == SIDEWAYS_BANK_7)
                 {
                     SIDEWAYS_BYTE(7, addr & 0x3FFF) = val;
                 }
