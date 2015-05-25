@@ -35,6 +35,13 @@ char *getstringcfg(char *name)
                         c++;
                 }
                 if (name[c]) continue;
+
+                // Verify that we're matching the whole of the key and not just a prefix
+                if (cfgbuffer[c] != ' ' && cfgbuffer[c] != '=')
+                {
+                    continue;
+                }
+
                 if (!cfgbuffer[c]) continue;
 //                rpclog("Matched - now %s\n",&cfgbuffer[c]);
                 while (cfgbuffer[c] && cfgbuffer[c]!='=') c++;
