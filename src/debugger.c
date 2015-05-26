@@ -733,7 +733,12 @@ void dodebugger()
                         break;
                         case 'q': case 'Q': 
                         setquit();
+#ifndef WIN32
+                        closeelk();
+                        exit(0);
+#else
                         while (1);
+#endif
                         break;
                         case 'h': case 'H': case '?':
                         sprintf(outs,"\n    Debugger commands :\n\n");
