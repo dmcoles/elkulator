@@ -25,6 +25,9 @@ $ ./configure
 $ make
 ```
 
+To build with tracing enabled and F1 "quick quit" behaviour, run
+`./configure --enable-debug`.
+
 #### Running
 
 ```bash
