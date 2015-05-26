@@ -68,6 +68,7 @@ void updatelinuxgui()
         ddtypemenu[1].flags=(ddtype)?D_SELECTED:0;
         for (x=0;x<3;x++)  ddvolmenu[x].flags=(ddvol==(int)ddvolmenu[x].dp)?D_SELECTED:0;
 //        keymenu[1].flags=(keyas)?D_SELECTED:0;
+        miscmenu[1].flags=(debug)?D_SELECTED:0;
 }
 
 int gui_keydefine();
@@ -590,10 +591,25 @@ int gui_scrshot()
         return D_O_K;
 }
 
+static int gui_debug()
+{
+    if (!debugon)
+    {
+        debug = debugon = 1;
+    }
+    else
+    {
+        debug ^= 1;
+    }
+
+    updatelinuxgui();
+    return D_O_K;
+}
+
 MENU miscmenu[2]=
 {
         {"Save screenshot",gui_scrshot,NULL,0,NULL},
-        {NULL,NULL,NULL,0,NULL}
+        {"Debug",gui_debug,NULL,0,NULL}
 };
 
 MENU mainmenu[7]=
