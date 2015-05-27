@@ -2,9 +2,10 @@
 
 This is a Git fork of Tom Walker's [Elkulator](http://www.retrosoftware.co.uk/hg/elkulator).
 
-Check out the `linux` branch for the Linux version and `windows` for the
-Windows version. This arrangement of sources is temporary until I figure out a
-better configuration for merging changes between the different versions.
+This version has only been tested on Linux, though it should be straightforward
+to fix it up so it builds on Windows under MinGW. I have introduced one or two
+Linuxisms which I intend to address once I have a working Windows build
+environment and sufficient motivation.
 
 ## Building and running
 
