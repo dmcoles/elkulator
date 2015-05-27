@@ -1,6 +1,7 @@
 # Elkulator v1.0
 
-This is a Git fork of Tom Walker's [Elkulator](http://www.retrosoftware.co.uk/hg/elkulator).
+This is a Git fork of Tom Walker's [Elkulator](http://www.retrosoftware.co.uk/hg/elkulator)
+[Acorn Electron](http://en.wikipedia.org/wiki/Acorn_Electron) emulator.
 
 This version has only been tested on Linux, though it should be straightforward
 to fix it up so it builds on Windows under MinGW. I have introduced one or two
