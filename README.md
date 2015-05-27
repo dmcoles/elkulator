@@ -8,7 +8,8 @@ to fix it up so it builds on Windows under MinGW. I have introduced one or two
 Linuxisms which I intend to address once I have a working Windows build
 environment and sufficient motivation.
 
-## Building and running
+Check out the [wiki](https://github.com/rcook/elkulator/wiki) where I have
+documented a few issues I have run into here and there.
 
 ### Ubuntu
 
