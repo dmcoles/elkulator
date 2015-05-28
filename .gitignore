@@ -15,8 +15,11 @@ install-sh
 missing
 src/.deps/
 src/.dirstamp
+src/Elkulator.exe
 src/Makefile
 src/Makefile.in
 src/elkulator
+src/elkwin.res
 test/.deps
+test/ElkulatorTest.exe
 test/elkulator-test
