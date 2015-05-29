@@ -6,6 +6,9 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#ifdef WIN32
+#include <sys/stat.h>
+#endif
 #include "path.h"
 
 bool pathJoin(
@@ -14,9 +17,9 @@ bool pathJoin(
     char *result,
     size_t resultSize)
 {
-    if (path0 == NULL || path1 == NULL ||  result == NULL || resultSize < 1)
+    if (path0 == NULL || path1 == NULL || result == NULL || resultSize < 1)
     {
-        return false;
+        goto Error;
     }
 
     result[0] = '\0';
@@ -56,7 +59,11 @@ bool pathJoin(
     return true;
 
 Error:
-    result[0] = '\0';
+    if (result != NULL && resultSize > 0)
+    {
+        result[0] = '\0';
+    }
+
     return false;
 }
 
@@ -66,23 +73,28 @@ bool pathResolve(
     size_t resultSize,
     bool *pathExists)
 {
-    if (path == NULL || result == NULL || resultSize < 1)
-    {
-        return false;
-    }
-
-    result[0] = '\0';
-
-    if (resultSize != _MAX_PATH_WITH_NULL)
+    if (path == NULL || result == NULL || resultSize != _MAX_PATH_WITH_NULL)
     {
         goto Error;
     }
 
+#ifdef WIN32
+    struct _stat statBuffer;
+    int statResult = _stat(path, &statBuffer);
+    if (statResult != 0 && errno != ENOENT)
+    {
+        goto Error;
+    }
+
+    _fullpath(result, path, _MAX_PATH_WITH_NULL);
+    char *ptr = statResult == 0 ? result : NULL;
+#else
     char *ptr = realpath(path, result);
     if (ptr == NULL && errno != ENOENT)
     {
         goto Error;
     }
+#endif
 
     if (pathExists != NULL)
     {
@@ -92,7 +104,11 @@ bool pathResolve(
     return true;
 
 Error:
-    result[0] = '\0';
+    if (result != NULL && resultSize > 0)
+    {
+        result[0] = '\0';
+    }
+
     if (pathExists != NULL)
     {
         *pathExists = false;

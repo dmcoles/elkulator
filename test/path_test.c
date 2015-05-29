@@ -36,6 +36,15 @@ static void pathJoinTest()
     assert(strcmp("/xxx/yyy/zzz", path) == 0);
 }
 
+static void formatExpectedPath(char *buffer, char const *currentDir, char const *fileName)
+{
+#ifdef WIN32
+    sprintf(buffer, "%s\\%s", currentDir, fileName);
+#else
+    sprintf(buffer, "%s/%s", currentDir, fileName);
+#endif
+}
+
 static void pathResolveTest()
 {
     bool result;
@@ -50,6 +59,7 @@ static void pathResolveTest()
     }
 
     path[0] = 'A';
+    pathExists = true;
     result = pathResolve("./foo.txt", path, 0, &pathExists);
     assert(!result);
     assert(path[0] == 'A');
@@ -64,21 +74,21 @@ static void pathResolveTest()
     path[0] = 'A';
     result = pathResolve("./foo.c", path, COUNTOF(path), &pathExists);
     assert(result);
-    sprintf(expectedPath, "%s/foo.c", currentDir);
+    formatExpectedPath(expectedPath, currentDir, "foo.c");
     assert(strcmp(expectedPath, path) == 0);
     assert(!pathExists);
 
     path[0] = 'A';
     result = pathResolve("./foo.txt", path, COUNTOF(path), &pathExists);
     assert(result);
-    sprintf(expectedPath, "%s/foo.txt", currentDir);
+    formatExpectedPath(expectedPath, currentDir, "foo.txt");
     assert(strcmp(expectedPath, path) == 0);
     assert(!pathExists);
 
     path[0] = 'A';
     result = pathResolve(".//foo.txt", path, COUNTOF(path), &pathExists);
     assert(result);
-    sprintf(expectedPath, "%s/foo.txt", currentDir);
+    formatExpectedPath(expectedPath, currentDir, "foo.txt");
     assert(strcmp(expectedPath, path) == 0);
     assert(!pathExists);
 }
