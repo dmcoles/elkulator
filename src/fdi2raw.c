@@ -29,6 +29,7 @@
 
 */
 
+#pragma GCC diagnostic ignored "-Woverflow"
 #define STATIC_INLINE
 #include <stdio.h>
 #include <stdlib.h>
