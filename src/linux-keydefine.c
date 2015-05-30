@@ -44,6 +44,14 @@ char *key_names[] =
    "SCRLOCK",    "NUMLOCK",    "CAPSLOCK",   "MAX"
 };
 
+static inline int getDialogKeyCode(DIALOG const *dialog)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+    return (int)dialog->dp2;
+#pragma GCC diagnostic pop
+}
+
 int d_getkey(int msg, DIALOG *d, int cd)
 {
         BITMAP *b;
@@ -54,7 +62,7 @@ int d_getkey(int msg, DIALOG *d, int cd)
         char s[1024],s2[1024],s3[64];
         if (ret==D_EXIT)
         {
-                k=(int)d->dp2;
+                k = getDialogKeyCode(d);
                 x=(SCREEN_W/2)-100;
                 y=(SCREEN_H/2)-36;
                 b=create_bitmap(200,72);

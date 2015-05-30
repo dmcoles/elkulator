@@ -42,6 +42,14 @@ MENU joymenu[3];
 MENU ddtypemenu[3];
 MENU ddvolmenu[4];
 
+static inline int getMenuItemCommandId(MENU const *menuItem)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+    return (int)menuItem->dp;
+#pragma GCC diagnostic pop
+}
+
 void updatelinuxgui()
 {
         int x;
@@ -51,7 +59,12 @@ void updatelinuxgui()
         tapespdmenu[0].flags=(!tapespeed)?D_SELECTED:0;
         tapespdmenu[1].flags=(tapespeed==1)?D_SELECTED:0;
         tapespdmenu[2].flags=(tapespeed==2)?D_SELECTED:0;
-        for (x=0;x<6;x++)  displaymenu[x].flags=(drawmode==(int)displaymenu[x].dp)?D_SELECTED:0;
+
+        for (x = 0; x < 6; ++x)
+        {
+            displaymenu[x].flags = (drawmode == getMenuItemCommandId(&displaymenu[x])) ? D_SELECTED : 0;
+        }
+
         videomenu[1].flags=(fullscreen)?D_SELECTED:0;
         soundmenu[0].flags=(sndint)?D_SELECTED:0;
         soundmenu[1].flags=(sndex)?D_SELECTED:0;
@@ -61,13 +74,30 @@ void updatelinuxgui()
         dischmenu[2].flags=(dfsena)?D_SELECTED:0;
         memmenu[0].flags=(turbo)?D_SELECTED:0;
         memmenu[1].flags=(mrb)?D_SELECTED:0;
-        for (x=0;x<3;x++)  mrbmenu[x].flags=(mrbmode==(int)mrbmenu[x].dp)?D_SELECTED:0;
+
+        for (x = 0; x < 3; ++x)
+        {
+            mrbmenu[x].flags = (mrbmode == getMenuItemCommandId(&mrbmenu[x])) ? D_SELECTED : 0;
+        }
+
         joymenu[0].flags=(plus1)?D_SELECTED:0;
         joymenu[1].flags=(firstbyte)?D_SELECTED:0;
-//        for (x=0;x<5;x++)  waveformmenu[x].flags=(curwave==(int)waveformmenu[x].dp)?D_SELECTED:0;
+
+/*
+        for (x = 0; x < 5; ++x)
+        {
+            waveformmenu[x].flags = (curwave == getMenuItemCommandId(&waveformmenu[x])) ? D_SELECTED : 0;
+        }
+*/
+
         ddtypemenu[0].flags=(!ddtype)?D_SELECTED:0;
         ddtypemenu[1].flags=(ddtype)?D_SELECTED:0;
-        for (x=0;x<3;x++)  ddvolmenu[x].flags=(ddvol==(int)ddvolmenu[x].dp)?D_SELECTED:0;
+
+        for (x = 0; x < 3; ++x)
+        {
+            ddvolmenu[x].flags = (ddvol == getMenuItemCommandId(&ddvolmenu[x])) ? D_SELECTED : 0;
+        }
+
 //        keymenu[1].flags=(keyas)?D_SELECTED:0;
         miscmenu[1].flags=(debug)?D_SELECTED:0;
 }
@@ -333,7 +363,7 @@ MENU tapemenu[]=
 
 int gui_disp()
 {
-        drawmode=(int)active_menu->dp;
+        drawmode = getMenuItemCommandId(active_menu);
         updatelinuxgui();
         return D_O_K;
 }
@@ -390,7 +420,7 @@ MENU waveformmenu[6]=
 
 int gui_ddtype()
 {
-        ddtype=(int)active_menu->dp;
+        ddtype = getMenuItemCommandId(active_menu);
         closeddnoise();
         loaddiscsamps();
         updatelinuxgui();
@@ -406,7 +436,7 @@ MENU ddtypemenu[3]=
 
 int gui_ddvol()
 {
-        ddvol=(int)active_menu->dp;
+        ddvol = getMenuItemCommandId(active_menu);
         updatelinuxgui();
         return D_O_K;
 }
@@ -501,7 +531,7 @@ MENU dischmenu[4]=
 
 int gui_mrbmode()
 {
-        mrbmode=(int)active_menu->dp;
+        mrbmode = getMenuItemCommandId(active_menu);
         resetit=1;
         updatelinuxgui();
         return D_O_K;
