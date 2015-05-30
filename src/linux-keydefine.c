@@ -77,7 +77,7 @@ int d_getkey(int msg, DIALOG *d, int cd)
                         }
                 }
 
-                textprintf_ex(screen,font,x+8,y+40,makecol(255,255,255),0,s);
+                textprintf_ex(screen, font, x + 8, y + 40, makecol(255, 255, 255), 0, "%s", s);
                 
                 textprintf_ex(screen,font,x+8,y+56,makecol(255,255,255),0,"Please press new key...");
 getnewkey:
