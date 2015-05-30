@@ -256,6 +256,7 @@ void closeuef()
         if (uef)
 	{
            	gzclose(uef);
-		uef=(gzFile *)NULL;
+		uef = NULL;
 	}
 }
+
