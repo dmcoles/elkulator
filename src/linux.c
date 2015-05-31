@@ -4,6 +4,7 @@
 
 #include <allegro.h>
 #include "elk.h"
+#include "linux-gui.h"
 
 char ssname[260];
 char scrshotname[260];
