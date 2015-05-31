@@ -2,7 +2,7 @@ VPATH := . resid-fp
 CC := gcc.exe
 CPP := g++.exe
 WINDRES := windres.exe
-CFLAGS := -O3 -march=i686 -ffast-math -fomit-frame-pointer -falign-loops -falign-jumps -falign-functions
+CFLAGS := -Wall -O3 -march=i686 -ffast-math -fomit-frame-pointer -falign-loops -falign-jumps -falign-functions
 
 SRC := $(wildcard *.c)
 SRC := $(filter-out linux%,$(SRC))
