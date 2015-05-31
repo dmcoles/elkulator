@@ -1946,7 +1946,7 @@ static int decode_lowlevel_track (FDI *fdi, int track, struct fdi_cache *cache)
 	return 1;
 }
 
-static unsigned char fdiid[]={"Formatted Disk Image file"};
+static char fdiid[]={"Formatted Disk Image file"};
 static int bit_rate_table[16] = { 125,150,250,300,500,1000 };
 
 void fdi2raw_header_free (FDI *fdi)

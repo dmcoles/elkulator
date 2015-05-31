@@ -6,7 +6,7 @@
 #include "elk.h"
 
 FILE *cfgfile;
-uint8_t cfgbuffer[1024];
+char cfgbuffer[1024];
 int sndex;
 int sndint;
 int firstbyte;
@@ -23,7 +23,7 @@ char *getstringcfg(char *name)
         fseek(cfgfile,0,SEEK_SET);
         while (1)
         {
-                t=fgets(cfgbuffer,1024,cfgfile);
+                t = fgets(cfgbuffer, COUNTOF(cfgbuffer), cfgfile);
                 //rpclog("New string - %s\n",cfgbuffer);
                 if (!t) return 0;
                 c=0;
