@@ -1313,7 +1313,7 @@ static void fix_mfm_sync (FDI *fdi)
 
 static int handle_sectors_described_track (FDI *fdi)
 {
-	int oldout;
+//	int oldout;
 //	uae_u8 *start_src = fdi->track_src ;
 	fdi->encoding_type = *fdi->track_src++;
 	fdi->index_offset = get_u32(fdi->track_src);
@@ -1324,10 +1324,10 @@ static int handle_sectors_described_track (FDI *fdi)
 	do {
 		fdi->track_type = *fdi->track_src++;
 		//outlog ("%06.6X %06.6X %02.2X:",fdi->track_src - start_src + 0x200, fdi->out/8, fdi->track_type);
-		oldout = fdi->out;
+//		oldout = fdi->out;
 		decode_sectors_described_track[fdi->track_type](fdi);
 		//outlog(" %d\n", fdi->out - oldout);
-		oldout = fdi->out;
+//		oldout = fdi->out;
 		if (fdi->out < 0 || fdi->err) {
 			//outlog ("\nin %d bytes, out %d bits\n", fdi->track_src - fdi->track_src_buffer, fdi->out);
 			return -1;
@@ -1814,7 +1814,7 @@ static void fdi2_celltiming (FDI *fdi, unsigned long totalavg, int bitoffset, ua
 
 static int decode_lowlevel_track (FDI *fdi, int track, struct fdi_cache *cache)
 {
-	uae_u8 *p1, *d;
+	uae_u8 *p1/*, *d*/;
 	uae_u32 *p2;
 	uae_u32 *avgp, *minp = 0, *maxp = 0;
 	uae_u8 *idxp = 0;
@@ -1823,7 +1823,7 @@ static int decode_lowlevel_track (FDI *fdi, int track, struct fdi_cache *cache)
 	int avg_free, min_free = 0, max_free = 0, idx_free;
 	int idx_off1=0, idx_off2=0, idx_off3=0;
 
-	d = fdi->track_dst;
+	//d = fdi->track_dst;
 	p1 = fdi->track_src;
 	pulses = get_u32 (p1);
 	if (!pulses)

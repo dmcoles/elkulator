@@ -89,10 +89,10 @@ void getwindowsstuff()
 int getfn(HWND hwnd, char *f, char *s, int save, char *de)
 {
         char fn[512];
-        char start[512];
+        //char start[512];
         OPENFILENAME ofn;
         fn[0]=0;
-        start[0]=0;
+        //start[0]=0;
 //        strcpy(fn,s);
 //        rpclog("getfn - file %s filter %s\n",fn,f);
         ZeroMemory(&ofn, sizeof(ofn));
