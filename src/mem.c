@@ -304,7 +304,12 @@ uint8_t readkeys(uint16_t addr)
 void savememstate(FILE *f)
 {
         fwrite(ram,32768,1,f);
-        if (mrb) fwrite(ram+32768,32768,1,f);
+
+        if (mrb)
+        {
+            fwrite(ram2, 1, COUNTOF(ram2), f);
+        }
+
         if (plus3 && dfsena) fwrite(dfs,16384,1,f);
         if (sndex)  fwrite(sndrom,16384,1,f);
         if (usedrom6) fwrite(ram6,16384,1,f);
@@ -313,8 +318,14 @@ void savememstate(FILE *f)
 void loadmemstate(FILE *f)
 {
         fread(ram,32768,1,f);
-        if (mrb) fread(ram+32768,32768,1,f);
+
+        if (mrb)
+        {
+            fread(ram2, 1, COUNTOF(ram2), f);
+        }
+
         if (plus3 && dfsena) fread(dfs,16384,1,f);
         if (sndex)  fread(sndrom,16384,1,f);
         if (usedrom6) fread(ram6,16384,1,f);
 }
+
