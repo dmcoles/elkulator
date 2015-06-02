@@ -90,7 +90,7 @@ void initelk(int argc, char *argv[])
                 tempFileName,
                 COUNTOF(tempFileName)))
             {
-                TRACE("! pathJoin failed\n");
+                printf("! pathJoin failed\n");
                 abort();
             }
         }
@@ -101,7 +101,7 @@ void initelk(int argc, char *argv[])
             COUNTOF(g_configurationFileName),
             NULL))
         {
-            TRACE("! pathResolve failed\n");
+            printf("! pathResolve failed\n");
             abort();
         }
 

@@ -123,7 +123,7 @@ static void loadSidewaysBankConfig()
             }
             else
             {
-                TRACE("! Unsupported sideways bank type '%.*s'\n", typeLength, s);
+                printf("! Unsupported sideways bank type '%.*s'\n", typeLength, s);
                 abort();
             }
 
@@ -147,7 +147,7 @@ static void saveSidewaysBankConfig()
         case SidewaysBankType_Ram: typeStr = "ram"; break;
         case SidewaysBankType_Rom: typeStr = "rom"; break;
         default:
-            TRACE("! Invalid sideways bank type\n");
+            printf("! Invalid sideways bank type\n");
             abort();
         }
 
@@ -166,11 +166,11 @@ void loadconfig()
         cfgfile = fopen(g_configurationFileName, "rt");
         if (cfgfile == NULL)
         {
-            TRACE("! Failed to open configuration file %s\n", g_configurationFileName);
+            printf("! Failed to open configuration file %s\n", g_configurationFileName);
             return;
         }
 
-        TRACE("! Loading settings from configuration file %s\n", g_configurationFileName);
+        printf("! Loading settings from configuration file %s\n", g_configurationFileName);
 
         s = getstringcfg("os_rom_path");
         if (s != NULL)
@@ -244,11 +244,11 @@ void saveconfig()
         cfgfile = fopen(g_configurationFileName, "wt");
         if (cfgfile == NULL)
         {
-            TRACE("! Failed to open configuration file %s\n", g_configurationFileName);
+            printf("! Failed to open configuration file %s\n", g_configurationFileName);
             return;
         }
 
-        TRACE("! Saving settings to configuration file %s\n", g_configurationFileName);
+        printf("! Saving settings to configuration file %s\n", g_configurationFileName);
 
         writestringcfg("os_rom_path", os_rom_path);
         writestringcfg("mrb_os_rom_path", mrb_os_rom_path);

@@ -34,7 +34,7 @@ static void loadRom(char const *path, uint8_t *buffer)
     FILE *f = fopen(path, "rb");
     if (f == NULL)
     {
-        TRACE("! Failed to load ROM image %s\n", path);
+        printf("! Failed to load ROM image %s\n", path);
         abort();
     }
 
@@ -49,13 +49,13 @@ void loadroms()
 
     if (!pathDir(g_configurationFileName, configurationDir, COUNTOF(configurationDir)))
     {
-        TRACE("! pathDir failed\n");
+        printf("! pathDir failed\n");
         abort();
     }
 
     if (!pathJoin(configurationDir, os_rom_path, fullPath, COUNTOF(fullPath)))
     {
-        TRACE("! pathJoin failed\n");
+        printf("! pathJoin failed\n");
         abort();
     }
 
@@ -63,7 +63,7 @@ void loadroms()
 
     if (!pathJoin(configurationDir, mrb_os_rom_path, fullPath, COUNTOF(fullPath)))
     {
-        TRACE("! pathJoin failed\n");
+        printf("! pathJoin failed\n");
         abort();
     }
 
@@ -80,12 +80,12 @@ void loadroms()
         {
             if (!pathJoin(configurationDir, sidewaysBank->path, fullPath, COUNTOF(fullPath)))
             {
-                TRACE("! pathJoin failed\n");
+                printf("! pathJoin failed\n");
                 abort();
             }
 
             loadRom(fullPath, g_sidewaysBanks[i].data);
-            TRACE("! Loaded sideways image from %s into slot %X\n", fullPath, i);
+            printf("! Loaded sideways image from %s into slot %X\n", fullPath, i);
         }
     }
 }
