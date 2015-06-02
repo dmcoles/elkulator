@@ -206,6 +206,7 @@ extern int discspd;
 extern int motorspin;
 
 char exedir[512];
+char g_resourceDir[_MAX_PATH_WITH_NULL];
 char g_configurationFileName[_MAX_PATH_WITH_NULL];
 
 void initelk();

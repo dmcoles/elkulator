@@ -5,6 +5,7 @@
 #include <allegro.h>
 #include <math.h>
 #include "elk.h"
+#include "util.h"
 
 int tpnoisep=0;
 int tmcount=0;
@@ -20,17 +21,18 @@ SAMPLE *tsamples[2];
 
 void maketapenoise()
 {
-        char path[512],p2[512];
-        int c;
+        char wavDir[_MAX_PATH_WITH_NULL];
 
-        getcwd(p2,511);
-        if (ddtype) sprintf(path,"%sddnoise",exedir);
-        else        sprintf(path,"%sddnoise",exedir);
-        printf("path now %s\n",path);
-        chdir(path);
-        tsamples[0]=load_wav("motoron.wav");
-        tsamples[1]=load_wav("motoroff.wav");
-        chdir(p2);
+        if (!pathJoin(g_resourceDir, "ddnoise", wavDir, COUNTOF(wavDir)))
+        {
+            printf("! pathJoin failed\n");
+            abort();
+        }
+
+        tsamples[0] = loadWavHelper(wavDir, "motoron.wav");
+        tsamples[1] = loadWavHelper(wavDir, "motoroff.wav");
+
+        int c;
         for (c=0;c<32;c++)
         {
                 sinewave[c]=(int)(sin((float)c*((2.0*PI)/32.0))*128.0);

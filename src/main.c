@@ -63,8 +63,26 @@ void cleardrawit()
 
 char tapename[512];
 
+static void showUsage()
+{
+    char executablePath[_MAX_PATH_WITH_NULL];
+    get_executable_name(executablePath, COUNTOF(executablePath));
+    char const *fileName = get_filename(executablePath);
+
+    printf("Elkulator " ELKULATOR_VERSION " command line options\n\n");
+    printf("Usage: %s <options>\n", fileName);
+    printf("  --conf CONF_FILE_NAME         Specify configuration file name\n");
+    printf("  --resource-dir RESOURCE_DIR   Specify resource directory\n");
+    printf("  -disc SSD_FILE_NAME           Load SSD disc image into drives 0/2\n");
+    printf("  -disc1 SSD_FILE_NAME          Load SSD disc image into drives 1/3\n");
+    printf("  -tape UEF_FILE_NAME           Load UEF tape image\n");
+    printf("  -debug                        Start debugger\n");
+    exit(-1);
+}
+
 void initelk(int argc, char *argv[])
 {
+        char tempFileName[_MAX_PATH_WITH_NULL];
         int c;
         char *p;
         int tapenext=0,discnext=0;
@@ -75,7 +93,6 @@ void initelk(int argc, char *argv[])
 //        printf("Load config\n");
 
         c = 1;
-        char tempFileName[_MAX_PATH_WITH_NULL];
         if (c < argc - 1 && strcasecmp(argv[c], "--conf") == 0)
         {
             ++c;
@@ -107,6 +124,8 @@ void initelk(int argc, char *argv[])
 
         loadconfig();
 
+        strcpy(g_resourceDir, exedir);
+
 //printf("commandline\n");
 
         for (; c < argc; ++c)
@@ -122,16 +141,32 @@ void initelk(int argc, char *argv[])
 #ifndef WIN32
                 if (!strcasecmp(argv[c],"--help"))
                 {
-                        printf("Elkulator " ELKULATOR_VERSION " command line options :\n\n");
-                        printf("-disc disc.ssd  - load disc.ssd into drives :0/:2\n");
-                        printf("-disc1 disc.ssd - load disc.ssd into drives :1/:3\n");
-                        printf("-tape tape.uef  - load tape.uef\n");
-                        printf("-debug          - start debugger\n");
-                        exit(-1);
+                    showUsage();
+                    exit(0);
                 }
                 else
 #endif
-                if (!strcasecmp(argv[c],"-tape"))
+                if (!strcasecmp(argv[c], "--resource-dir"))
+                {
+                    if (++c >= argc)
+                    {
+                        printf("! Invalid command line!\n");
+                        abort();
+                    }
+
+                    strcpy(tempFileName, argv[c]);
+
+                    if (!pathResolve(
+                        tempFileName,
+                        g_resourceDir,
+                        COUNTOF(g_resourceDir),
+                        NULL))
+                    {
+                        printf("! pathResolve failed\n");
+                        abort();
+                    }
+                }
+                else if (!strcasecmp(argv[c],"-tape"))
                 {
                         tapenext=2;
                 }
@@ -157,6 +192,7 @@ void initelk(int argc, char *argv[])
                 }
                 if (tapenext) tapenext--;
         }
+
 //printf("initalmain\n"); fflush(stdout);
 
         initalmain(0,NULL);

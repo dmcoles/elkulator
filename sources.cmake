@@ -37,6 +37,8 @@ set(OBJ_SOURCE_FILES
   ${SOURCE_DIR}/tapenoise.c
   ${SOURCE_DIR}/uef.c
   ${SOURCE_DIR}/ula.c
+  ${SOURCE_DIR}/util.c
+  ${SOURCE_DIR}/util.h
   ${SOURCE_DIR}/win-keydefine.c
   ${SOURCE_DIR}/win.c
 )

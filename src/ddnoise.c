@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "elk.h"
+#include "util.h"
 
 int ddvol=3;
 SAMPLE *seeksmp[4][2],*seek2smp,*seek3smp;
@@ -22,40 +23,39 @@ int ddtype=0;
 
 void loaddiscsamps()
 {
-        char path[512],p2[512];
-        getcwd(p2,511);
-        printf("In %s\n",p2);
-        if (ddtype) sprintf(path,"%sddnoise/35",exedir);
-        else        sprintf(path,"%sddnoise/525",exedir);
-        printf("path now %s\n",path);
-        chdir(path);
-        seeksmp[0][0]=load_wav("stepo.wav");
+        char wavDir[_MAX_PATH_WITH_NULL];
+
+        if (!pathJoin(g_resourceDir, ddtype ? "ddnoise/35" : "ddnoise/525", wavDir, COUNTOF(wavDir)))
+        {
+            printf("! pathJoin failed\n");
+            abort();
+        }
+
+        seeksmp[0][0] = loadWavHelper(wavDir, "stepo.wav");
         if (seeksmp[0][0])
         {
-                seeksmp[0][1]=load_wav("stepi.wav");
-                seeksmp[1][0]=load_wav("seek1o.wav");
-                seeksmp[1][1]=load_wav("seek1i.wav");
-                seeksmp[2][0]=load_wav("seek2o.wav");
-                seeksmp[2][1]=load_wav("seek2i.wav");
-                seeksmp[3][0]=load_wav("seek3o.wav");
-                seeksmp[3][1]=load_wav("seek3i.wav");
+                seeksmp[0][1] = loadWavHelper(wavDir, "stepi.wav");
+                seeksmp[1][0] = loadWavHelper(wavDir, "seek1o.wav");
+                seeksmp[1][1] = loadWavHelper(wavDir, "seek1i.wav");
+                seeksmp[2][0] = loadWavHelper(wavDir, "seek2o.wav");
+                seeksmp[2][1] = loadWavHelper(wavDir, "seek2i.wav");
+                seeksmp[3][0] = loadWavHelper(wavDir, "seek3o.wav");
+                seeksmp[3][1] = loadWavHelper(wavDir, "seek3i.wav");
         }
         else
         {
-                seeksmp[0][0]=load_wav("step.wav");
-                seeksmp[0][1]=load_wav("step.wav");
-                seeksmp[1][0]=load_wav("seek.wav");
-                seeksmp[1][1]=load_wav("seek.wav");
-                seeksmp[2][0]=load_wav("seek3.wav");
-                seeksmp[2][1]=load_wav("seek3.wav");
-                seeksmp[3][0]=load_wav("seek2.wav");
-                seeksmp[3][1]=load_wav("seek2.wav");
+                seeksmp[0][0] = loadWavHelper(wavDir, "step.wav");
+                seeksmp[0][1] = loadWavHelper(wavDir, "step.wav");
+                seeksmp[1][0] = loadWavHelper(wavDir, "seek.wav");
+                seeksmp[1][1] = loadWavHelper(wavDir, "seek.wav");
+                seeksmp[2][0] = loadWavHelper(wavDir, "seek3.wav");
+                seeksmp[2][1] = loadWavHelper(wavDir, "seek3.wav");
+                seeksmp[3][0] = loadWavHelper(wavDir, "seek2.wav");
+                seeksmp[3][1] = loadWavHelper(wavDir, "seek2.wav");
         }
-        motorsmp[0]=load_wav("motoron.wav");
-        motorsmp[1]=load_wav("motor.wav");
-        motorsmp[2]=load_wav("motoroff.wav");
-        chdir(p2);
-        printf("done!\n");
+        motorsmp[0] = loadWavHelper(wavDir, "motoron.wav");
+        motorsmp[1] = loadWavHelper(wavDir, "motor.wav");
+        motorsmp[2] = loadWavHelper(wavDir, "motoroff.wav");
 }
 
 void closeddnoise()
@@ -113,7 +113,6 @@ void mixddnoise()
         
         if (sndddnoise)
         {
-printf("Mixing ddnoise...\n");
         for (c=0;c<4410;c++)
         {
                 ddbuffer[c]=0;
