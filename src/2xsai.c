@@ -18,6 +18,13 @@ static int PixelsPerMask = 2;
 static int xsai_depth = 0;
 
 
+static inline void bmp_write32_wrapper(uint32_t addr, uint8_t *p)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+    bmp_write32(addr, *(uint32_t *)p);
+#pragma GCC diagnostic pop
+}
 
 int Init_2xSaI(int d)
 {
@@ -414,11 +421,11 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch, uint8 *unused, BITMAP *dest, ui
 		
 			dst_addr = bmp_write_line(dest, y * 2);
 			for (j = 0; j < dest->w * sbpp; j += sizeof(long))
-				bmp_write32(dst_addr + j, *((uint32_t *) (dst_line[0] + j)));
+				bmp_write32_wrapper(dst_addr + j, dst_line[0] + j);
 				
 			dst_addr = bmp_write_line(dest, y * 2 + 1);
 			for (j = 0; j < dest->w * sbpp; j += sizeof(long))
-				bmp_write32(dst_addr + j, *((uint32_t *) (dst_line[1] + j)));
+				bmp_write32_wrapper(dst_addr + j, dst_line[1] + j);
 		}
 		else {
 			if (y < height - 1) {
@@ -673,11 +680,11 @@ void SuperEagle_ex(uint8 *src, uint32 src_pitch, uint8 *unused, BITMAP *dest, ui
 		
 			dst_addr = bmp_write_line(dest, y * 2);
 			for (j = 0; j < dest->w * sbpp; j += sizeof(long))
-				bmp_write32(dst_addr + j, *((uint32_t *) (dst_line[0] + j)));
+				bmp_write32_wrapper(dst_addr + j, dst_line[0] + j);
 				
 			dst_addr = bmp_write_line(dest, y * 2 + 1);
 			for (j = 0; j < dest->w * sbpp; j += sizeof(long))
-				bmp_write32(dst_addr + j, *((uint32_t *) (dst_line[1] + j)));
+				bmp_write32_wrapper(dst_addr + j, dst_line[1] + j);
 		}
 		else {
 			if (y < height - 1) {
