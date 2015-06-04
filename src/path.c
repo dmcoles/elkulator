@@ -11,6 +11,12 @@
 #endif
 #include "path.h"
 
+bool pathExists(
+    char const *path)
+{
+    return access(path, F_OK ) != -1;
+}
+
 bool pathJoin(
     char const *path0,
     char const *path1,

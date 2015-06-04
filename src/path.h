@@ -14,7 +14,11 @@
 #endif
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "common.h"
+
+bool pathExists(
+    char const *path);
 
 bool pathJoin(
     char const *path0,

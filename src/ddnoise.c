@@ -23,39 +23,47 @@ int ddtype=0;
 
 void loaddiscsamps()
 {
-        char wavDir[_MAX_PATH_WITH_NULL];
+    char wavDir[_MAX_PATH_WITH_NULL];
+    char path[_MAX_PATH_WITH_NULL];
 
-        if (!pathJoin(g_resourceDir, ddtype ? "ddnoise/35" : "ddnoise/525", wavDir, COUNTOF(wavDir)))
-        {
-            printf("! pathJoin failed\n");
-            abort();
-        }
+    if (!pathJoin(g_resourceDir, ddtype ? "ddnoise/35" : "ddnoise/525", wavDir, COUNTOF(wavDir)))
+    {
+        printf("! pathJoin failed\n");
+        abort();
+    }
 
+
+    if (!pathJoin(wavDir, "stepo.wav", path, COUNTOF(path)))
+    {
+        printf("! pathJoin failed\n");
+        abort();
+    }
+
+    if (pathExists(path))
+    {
         seeksmp[0][0] = loadWavHelper(wavDir, "stepo.wav");
-        if (seeksmp[0][0])
-        {
-                seeksmp[0][1] = loadWavHelper(wavDir, "stepi.wav");
-                seeksmp[1][0] = loadWavHelper(wavDir, "seek1o.wav");
-                seeksmp[1][1] = loadWavHelper(wavDir, "seek1i.wav");
-                seeksmp[2][0] = loadWavHelper(wavDir, "seek2o.wav");
-                seeksmp[2][1] = loadWavHelper(wavDir, "seek2i.wav");
-                seeksmp[3][0] = loadWavHelper(wavDir, "seek3o.wav");
-                seeksmp[3][1] = loadWavHelper(wavDir, "seek3i.wav");
-        }
-        else
-        {
-                seeksmp[0][0] = loadWavHelper(wavDir, "step.wav");
-                seeksmp[0][1] = loadWavHelper(wavDir, "step.wav");
-                seeksmp[1][0] = loadWavHelper(wavDir, "seek.wav");
-                seeksmp[1][1] = loadWavHelper(wavDir, "seek.wav");
-                seeksmp[2][0] = loadWavHelper(wavDir, "seek3.wav");
-                seeksmp[2][1] = loadWavHelper(wavDir, "seek3.wav");
-                seeksmp[3][0] = loadWavHelper(wavDir, "seek2.wav");
-                seeksmp[3][1] = loadWavHelper(wavDir, "seek2.wav");
-        }
-        motorsmp[0] = loadWavHelper(wavDir, "motoron.wav");
-        motorsmp[1] = loadWavHelper(wavDir, "motor.wav");
-        motorsmp[2] = loadWavHelper(wavDir, "motoroff.wav");
+        seeksmp[0][1] = loadWavHelper(wavDir, "stepi.wav");
+        seeksmp[1][0] = loadWavHelper(wavDir, "seek1o.wav");
+        seeksmp[1][1] = loadWavHelper(wavDir, "seek1i.wav");
+        seeksmp[2][0] = loadWavHelper(wavDir, "seek2o.wav");
+        seeksmp[2][1] = loadWavHelper(wavDir, "seek2i.wav");
+        seeksmp[3][0] = loadWavHelper(wavDir, "seek3o.wav");
+        seeksmp[3][1] = loadWavHelper(wavDir, "seek3i.wav");
+    }
+    else
+    {
+        seeksmp[0][0] = loadWavHelper(wavDir, "step.wav");
+        seeksmp[0][1] = loadWavHelper(wavDir, "step.wav");
+        seeksmp[1][0] = loadWavHelper(wavDir, "seek.wav");
+        seeksmp[1][1] = loadWavHelper(wavDir, "seek.wav");
+        seeksmp[2][0] = loadWavHelper(wavDir, "seek3.wav");
+        seeksmp[2][1] = loadWavHelper(wavDir, "seek3.wav");
+        seeksmp[3][0] = loadWavHelper(wavDir, "seek2.wav");
+        seeksmp[3][1] = loadWavHelper(wavDir, "seek2.wav");
+    }
+    motorsmp[0] = loadWavHelper(wavDir, "motoron.wav");
+    motorsmp[1] = loadWavHelper(wavDir, "motor.wav");
+    motorsmp[2] = loadWavHelper(wavDir, "motoroff.wav");
 }
 
 void closeddnoise()
