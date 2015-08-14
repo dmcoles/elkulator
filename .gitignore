@@ -4,6 +4,7 @@ Makefile.in
 aclocal.m4
 allegro.log
 autom4te.cache/
+build/
 compile
 config.log
 config.status

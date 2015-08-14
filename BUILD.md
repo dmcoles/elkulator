@@ -1,45 +1,43 @@
 # Building and running
 
-## <a name="ubuntu"></a>Ubuntu
+Elkulator requires the following libraries:
+
+* Allegro 4.x
+* OpenAL
+* ALut
+* Zlib
+* CppUnit
+
+Elkulator uses a CMake-based build system, so this is also a prerequisite. The
+following build instructions will detail how to install these dependencies, if
+required, and build Elkulator on Linux and Windows.
+
+Elkulator has been tested on x86-32 and x86-64 machines. No other architectures
+are guaranteed to work and big-endian machines (eg PowerPC) almost certainly
+won't work.
+
+## <a name="linux"></a>Linux prerequisites
+
+These steps have been tested on Ubuntu 12.04 x64.
 
 ### Install dependencies
 
 ```bash
-$ sudo apt-get install liballegro4-dev libopenal-dev libalut-dev zlib1g-dev
+$ sudo apt-get install \
+  liballegro4-dev \
+  libopenal-dev \
+  libalut-dev \
+  zlib1g-dev \
+  libcppunit-dev
 ```
 
-### Configure and build Elkulator
+[Continue to _Build with CMake_](#build)
 
-```bash
-$ autoreconf -vfi
-$ ./configure
-$ make
-```
+## <a name="windows"></a>Windows prerequisites
 
-To build with tracing enabled and F1 "quick quit" behaviour, run
-`./configure --enable-debug`.
+These steps have been tested on Windows 7, Windows 8.1 and Windows 10 x64.
 
-### Run unit tests
-
-```bash
-$ ./elkulator-test
-```
-
-There are currently only a handful of tests.
-
-### Run Elkulator
-
-```bash
-$ ./elkulator &
-```
-
-Running Elkulator requires a valid `elk.cfg` configuration file and ROMs etc.
-
-## <a name="windows"></a>Windows
-
-Tested on Windows 7 Professional
-
-### Install prerequisites
+### Install dependencies
 
 The following assumes that your default Windows hard drive is `C:`. If this is
 not the case, adjust the instructions accordingly.
@@ -61,7 +59,7 @@ instructions were developed with version 0.6.2-beta-20131004-1
   1. Create `C:\MinGW\msys\1.0\etc\fstab` with single line `C:\MinGW /mingw`
   1. Edit `C:\MinGW\msys\1.0\etc\profile` and add line `export MINGDIR=/mingw`
   1. Create an "msys" shortcut pointing to `C:\MinGW\msys\1.0\msys.bat`
-1. Open the "msys" terminal by double-clicking the "msys" shortcut
+1. Open the MSYS terminal by double-clicking the "msys" shortcut
 1. Install wget: `mingw-get.exe install msys-wget`
 1. Install unzip: `mingw-get.exe install msys-unzip`
 
@@ -142,27 +140,32 @@ $ make
 $ make install
 ```
 
-### Build Elkulator
+#### CppUnit
 
-1. Start "msys" environment by double-clicking shortcut
-1. Run following commands:
+[Background information](http://www.freedesktop.org/wiki/Software/cppunit/) and
+[here](http://people.freedesktop.org/~mmohrhard/cppunit/index.html)
 
-```bash
-$ cd elkulator/src/
-$ make -f Makefile.mingw
-```
-
-### Run unit tests
+Run following commands:
 
 ```bash
-$ cd test/
-$ make -f Makefile.mingw
-$ ElkulatorTest.exe
+$ git clone git://anongit.freedesktop.org/git/libreoffice/cppunit/
+$ cd cppunit/
+$ ./autogen.sh
+$ ./configure
+$ make
+$ make check
+$ make install
 ```
 
-There are currently only a handful of tests.
+Note that you may need to patch the following files so that the `NOMINMAX`
+macro is not multiply defined and to avoid warnings such as "ISO C++ forbids
+casting between pointer-to-function and pointer-to-object" etc.
 
-### Run Elkulator
+* `cppunit/include/cppunit/plugin/DynamicLibraryManager.h`
+* `cppunit/include/cppunit/plugin/TestPlugIn.h`
+* `cppunit/src/cppunit/Win32DynamicLibraryManager.cpp`
+
+### Runtime dependencies
 
 Elkulator requires following binaries to be available on the system path:
 
@@ -175,4 +178,42 @@ Elkulator requires following binaries to be available on the system path:
 If you have built and installed the packages as described here, then these
 should already be available without any extra steps.
 
-Running Elkulator requires a valid `elk.cfg` configuration file and ROMs etc.
+[Continue to _Build with CMake_](#build)
+
+## <a name="build"></a>Build with CMake
+
+1. Open terminal (Linux) or start MSYS environment by double-clicking "msys"
+shortcut (Windows)
+1. Run following commands:
+
+```bash
+$ cd elkulator/
+$ script/cmake --build-type debug
+$ cd build/debug/
+$ make
+$ make test # Optional: run unit tests
+$ make install # Optional: install binaries
+```
+
+The `script/cmake` wrapper script will create build systems from the CMake build
+description under the `build` directory. On Windows, this will generate MSYS
+Makefiles while under Linux it will generate GNU Makefiles.
+
+Options currently supported by `script/cmake` are:
+
+* `--build-type` (required): build type (`debug` or `release`)
+* `--install-prefix` (optional): install location
+
+## <a name="test"></a>Run unit tests
+
+Tests can be run using `make test` or by running the unit test executable
+`elkulator-test` (Linux) or `elkulator-test.exe` (Windows) directly.
+
+## <a name="run"></a>Run Elkulator
+
+Running Elkulator requires a valid `elk.cfg` configuration file and ROM images
+etc. in the locations referenced in `elk.cfg`. The install prefix can be set
+using the `--install-prefix` option to `script/cmake`. It is convenient to point
+at a directory containing a `bin` directory that is prepopulated with an
+`elk.cfg` configuration file and all required ROM images in a `roms`
+subdirectory.

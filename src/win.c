@@ -11,6 +11,7 @@
 #include <stdlib.h>
 //#define WIN32_LEAN_AND_MEAN
 #include "elk.h"
+#include "elkulator-config.h"
 
 #include "resources.h"
 
@@ -216,7 +217,7 @@ int createwindow(HINSTANCE hThisInstance, int nFunsterStil)
         ghwnd = CreateWindowEx (
            0,                   /* Extended possibilites for variation */
            szClassName,         /* Classname */
-           "Elkulator v1.0",    /* Title Text */
+           "Elkulator " ELKULATOR_VERSION,    /* Title Text */
            WS_OVERLAPPEDWINDOW, /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */

@@ -5,6 +5,7 @@
 #include <allegro.h>
 //#include <alleggl.h>
 #include "elk.h"
+#include "elkulator-config.h"
 #include "linux-gui.h"
 
 #undef printf
@@ -656,7 +657,7 @@ MENU mainmenu[7]=
 
 DIALOG bemgui[]=
 {
-        {d_ctext_proc, 200, 260, 0,  0, 15,0,0,0,     0,0,"Elkulator v1.0"},
+        {d_ctext_proc, 200, 260, 0,  0, 15,0,0,0,     0,0, "Elkulator " ELKULATOR_VERSION},
         {d_menu_proc,  0,   0,   0,  0, 15,0,0,0,     0,0,mainmenu},
         {d_yield_proc},
         {0,0,0,0,0,0,0,0,0,0,0,NULL,NULL,NULL}

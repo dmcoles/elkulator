@@ -4,6 +4,7 @@
 
 #include <allegro.h>
 #include "elk.h"
+#include "elkulator-config.h"
 #include "linux-gui.h"
 
 char ssname[260];
@@ -36,9 +37,9 @@ void endblit()
 
 int keylookup[128],keylookup2[128];
 
-int main(int argc, char *argv[])
+int mainHelper(int argc, char *argv[])
 {
-        TRACE("! Elkulator starting up\n");
+        TRACE("! Elkulator " ELKULATOR_VERSION " starting up\n");
         allegro_init();
         initelk(argc,argv);
         install_mouse();
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
                 if (key[KEY_F11]) entergui();
         }
         closeelk();
-        TRACE("! Elkulator shutting down\n");
+        TRACE("! Elkulator " ELKULATOR_VERSION " shutting down\n");
         return 0;
 }
 

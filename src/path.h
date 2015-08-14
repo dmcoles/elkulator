@@ -7,7 +7,7 @@
 #define _PATH_H_INCLUDED
 
 #ifdef WIN32
-#define _MAX_PATH_WITH_NULL (_MAX_PATH)
+#define _MAX_PATH_WITH_NULL (266)
 #else
 #include <linux/limits.h>
 #define _MAX_PATH_WITH_NULL (PATH_MAX + 1)

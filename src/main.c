@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "elk.h"
+#include "elkulator-config.h"
 #undef printf
 int autoboot;
 FILE *rlog;
@@ -121,7 +122,7 @@ void initelk(int argc, char *argv[])
 #ifndef WIN32
                 if (!strcasecmp(argv[c],"--help"))
                 {
-                        printf("Elkulator v1.0 command line options :\n\n");
+                        printf("Elkulator " ELKULATOR_VERSION " command line options :\n\n");
                         printf("-disc disc.ssd  - load disc.ssd into drives :0/:2\n");
                         printf("-disc1 disc.ssd - load disc.ssd into drives :1/:3\n");
                         printf("-tape tape.uef  - load tape.uef\n");

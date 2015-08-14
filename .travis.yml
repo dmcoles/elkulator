@@ -1,0 +1,14 @@
+language: c
+
+sudo: required
+
+before_script:
+  - sudo add-apt-repository --yes ppa:kalakris/cmake
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq cmake liballegro4.2-dev libopenal-dev libalut-dev zlib1g-dev libcppunit-dev
+  - script/cmake --build-type debug --link-x11
+  - script/cmake --build-type release --link-x11
+
+script:
+  - pushd build/debug/ && make && make test && popd
+  - pushd build/release/ && make && make test && popd

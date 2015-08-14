@@ -1,0 +1,89 @@
+#!/bin/bash
+
+function show_usage {
+  echo "Usage: cmake <options>"
+  echo "  --build-type BUILD_TYPE, -b BUILD_TYPE"
+  echo "                    Set build type (\"debug\" or \"release\")"
+  echo "  --install-prefix INSTALL_PREFIX, -i INSTALL_PREFIX"
+  echo "                    Set install prefix"
+  echo "  --link-x11, -l    Statically link to X11 libraries"
+  echo "  --help, -h        Display this help"
+}
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  READLINK=greadlink
+else
+  READLINK=readlink
+fi
+SCRIPTPATH=$($READLINK -f $0)
+SCRIPTDIR=$(dirname $SCRIPTPATH)
+REPODIR=$(dirname $SCRIPTDIR)
+if [ "$MINGDIR" == "" ]; then
+  GENERATOR=Unix\ Makefiles
+else
+  GENERATOR=MSYS\ Makefiles
+fi
+
+BUILDTYPE=
+BUILDDIR=
+INSTALLPREFIX=
+LINKXII=
+while [[ $# > 0 ]]
+do
+  key="$1"
+  case $key in
+    -b|--build-type)
+      if [[ "$2" == "Debug" || "$2" == "debug" ]]; then
+        BUILDTYPE=Debug
+        BUILDDIR=debug
+      elif [[ "$2" == "Release" || "$2" == "release" ]]; then
+        BUILDTYPE=Release
+        BUILDDIR=release
+      else
+        echo "Unrecognized configuration \"$2\""
+      fi
+      shift
+      ;;
+    -i|--install-prefix)
+      INSTALLPREFIX=$2
+      shift
+      ;;
+    -l|--link-x11)
+      LINKX11=-DELKULATOR_LINK_X11=1
+      shift
+      ;;
+    -h|--help)
+      echo HELP!
+      exit 0
+      ;;
+    *)
+      echo "Unknown option \"$key\""
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if [ "$BUILDTYPE" == "" ]; then
+  show_usage
+  exit 1
+fi
+
+if [ "$INSTALLPREFIX" == "" ]; then
+  INSTALLPREFIX=$REPODIR/build/$BUILDDIR
+fi
+
+BUILDPATH=$REPODIR/build/$BUILDDIR
+if [ ! -d $BUILDPATH ]; then
+  mkdir -p $BUILDPATH
+fi
+
+cmake \
+  --no-warn-unused-cli \
+  -B$BUILDPATH \
+  -H$REPODIR \
+  -G "$GENERATOR" \
+  -DCMAKE_BUILD_TYPE=$BUILDTYPE \
+  -DCMAKE_INSTALL_PREFIX=$INSTALLPREFIX \
+  $LINKX11
+

@@ -1,0 +1,21 @@
+/*
+ * Elkulator common definitions
+ * Copyright (C) 2015, Richard Cook. All rights reserved.
+ */
+
+#pragma once
+
+#include <memory>
+
+#cmakedefine HAVE_MAKE_UNIQUE
+#ifndef HAVE_MAKE_UNIQUE
+namespace std
+{
+    template<typename T, typename... Args>
+    std::unique_ptr<T> make_unique(Args&&... args)
+    {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
+#endif
+

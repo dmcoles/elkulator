@@ -1,0 +1,14 @@
+/*
+ * Elkulator configuration information
+ * Copyright (C) 2015, Richard Cook. All rights reserved.
+ */
+
+#ifndef _ELKULATOR_CONFIG_H_INCLUDED
+#define _ELKULATOR_CONFIG_H_INCLUDED
+
+#define ELKULATOR_VERSION_MAJOR @ELKULATOR_VERSION_MAJOR@
+#define ELKULATOR_VERSION_MINOR @ELKULATOR_VERSION_MINOR@
+#define ELKULATOR_VERSION "v@ELKULATOR_VERSION_MAJOR@.@ELKULATOR_VERSION_MINOR@"
+
+#endif
+

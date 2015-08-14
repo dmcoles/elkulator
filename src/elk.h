@@ -7,7 +7,9 @@ extern "C" {
 #include <stdio.h>
 #include "path.h"
 
+#ifndef DEBUGMODE
 #define printf rpclog
+#endif
 
 void rpclog(char *format, ...);
 
