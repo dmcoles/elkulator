@@ -1,4 +1,5 @@
 /*Elkulator v1.0 by Tom Walker
+/*Elkulator v1.0 by Tom Walker
   Debugger*/
   
 int debug=0,debugon=0;
@@ -219,14 +220,26 @@ void startdebug()
 int debugopen=0;
 
 uint32_t debugmemaddr=0;
+uint32_t debugmemaddr2=0;
+uint32_t debugmemaddr3=0;
 uint32_t debugdisaddr=0;
 uint8_t debuglastcommand=0;
+uint8_t debugmemvalue=0;
+char debugfilename[255];
+char debugregvalue=' ';
 
 uint8_t dreadmem(uint16_t addr)
 {
         if (addr>=0xFC00 && addr<0xFF00) return 0xFF;
         return readmem(addr);
 }
+
+void dwritemem(uint16_t addr, uint8_t value)
+{
+       writemem(addr,value);
+}
+
+
 enum
 {
         IMP,IMPA,IMM,ZP,ZPX,ZPY,INDX,INDY,IND,ABS,ABSX,ABSY,IND16,IND1X,BRA
@@ -513,45 +526,172 @@ void dodebugger()
 //                        FreeConsole();
                         indebug=0;
                         return;
+						case 'g': case 'G':
+							//goto address
+                            if (!params) break;
+							sscanf(&ins[d],"%X",&debugmemaddr);
+							pc=debugmemaddr;
+							sprintf(outs,"continue from %04X",debugmemaddr);
+							debugout(outs);
+							debugout("\n");
+							debug=0;
+							indebug=0;
+							return;
+						
                         case 'm': case 'M':
-                        if (params) sscanf(&ins[d],"%X",&debugmemaddr);
-                        for (c=0;c<16;c++)
-                        {
-                                sprintf(outs,"    %04X : ",debugmemaddr);
-                                debugout(outs);
-                                for (d=0;d<16;d++)
-                                {
-                                        sprintf(outs,"%02X ",dreadmem(debugmemaddr+d));
-                                        debugout(outs);
-                                }
-                                debugout("  ");
-                                for (d=0;d<16;d++)
-                                {
-                                        temp=dreadmem(debugmemaddr+d);
-                                        if (temp<32) sprintf(outs,".");
-                                        else         sprintf(outs,"%c",temp);
-                                        debugout(outs);
-                                }
-                                debugmemaddr+=16;
-                                debugout("\n");
-                        }
-                        break;
-                        case 'd': case 'D':
-                        if (params) sscanf(&ins[d],"%X",&debugdisaddr);
-                        for (c=0;c<12;c++)
-                        {
-                                debugout("    ");
-                                debugdisassemble();
-                                debugout("\n");
-                        }
+                        if (!strncasecmp(ins,"ms",2))
+						{
+								//memory save
+                                if (!params) break;
+								sscanf(&ins[d],"%X %X %255s",&debugmemaddr, &debugmemaddr2, &debugfilename);
+								FILE *f=fopen(debugfilename,"wb");
+								for (int addr = debugmemaddr; addr<debugmemaddr2; addr++)
+								{
+									putc(dreadmem(addr),f);
+								}
+								fclose(f);
+								sprintf(outs,"%04X to %04X saved to %s",debugmemaddr,debugmemaddr2, debugfilename);
+								debugout(outs);
+								debugout("\n");
+						}
+                        else if (!strncasecmp(ins,"ml",2))
+						{
+								//memory load
+                                if (!params) break;
+								sscanf(&ins[d],"%X %255s",&debugmemaddr, &debugfilename);
+								FILE *f=fopen(debugfilename,"rb");
+								debugmemaddr2=debugmemaddr;
+								while (!feof(f))
+								{
+									dwritemem(debugmemaddr2++,fgetc(f));
+								}
+								fclose(f);
+								sprintf(outs,"%04X to %04X loaded from %s",debugmemaddr,debugmemaddr2-1, debugfilename);
+								debugout(outs);
+								debugout("\n");
+						}
+                        else if (!strncasecmp(ins,"mw",2))
+						{
+								//memory write
+                                if (!params) break;
+								sscanf(&ins[d],"%X %X",&debugmemaddr, &debugmemvalue);
+								dwritemem(debugmemaddr,debugmemvalue);
+								sprintf(outs,"%04X set to %02X",debugmemaddr,debugmemvalue);
+								debugout(outs);
+								debugout("\n");
+						}
+                        else if (!strncasecmp(ins,"mf",2))
+						{
+								//memory fill
+                                if (!params) break;
+								sscanf(&ins[d],"%X %X %X",&debugmemaddr, &debugmemaddr2, &debugmemvalue);
+								for (int addr = debugmemaddr; addr<debugmemaddr2; addr++)
+								{
+									dwritemem(addr,debugmemvalue);
+								}
+								sprintf(outs,"fill memory between %04X and %04X with %02X",debugmemaddr,debugmemaddr2,debugmemvalue);
+								debugout(outs);
+								debugout("\n");
+						}
+                        else if (!strncasecmp(ins,"mc",2))
+						{
+								//memory copy
+                                if (!params) break;
+								sscanf(&ins[d],"%X %X %X",&debugmemaddr, &debugmemaddr2, &debugmemaddr3);
+								
+								if (debugmemaddr3<debugmemaddr2 && debugmemaddr3>debugmemaddr)
+								{
+									//backwards copy needed
+									for (int addr = debugmemaddr2-1; addr>=debugmemaddr; addr--)
+									{
+										debugmemvalue=dreadmem(addr);
+										dwritemem(debugmemaddr3+addr-debugmemaddr,debugmemvalue);
+									}
+								
+								}
+								else
+								{
+									for (int addr = debugmemaddr; addr<debugmemaddr2; addr++)
+									{
+										//forwards copy needed
+										debugmemvalue=dreadmem(addr);
+										dwritemem(debugmemaddr3+addr-debugmemaddr,debugmemvalue);
+									}
+								}
+								
+								sprintf(outs,"copy memory from %04X and %04X to %04X",debugmemaddr,debugmemaddr2,debugmemaddr3);
+								debugout(outs);
+								debugout("\n");
+						}
+						else
+						{
+							if (params) sscanf(&ins[d],"%X",&debugmemaddr);
+							for (c=0;c<16;c++)
+							{
+									sprintf(outs,"    %04X : ",debugmemaddr);
+									debugout(outs);
+									for (d=0;d<16;d++)
+									{
+											sprintf(outs,"%02X ",dreadmem(debugmemaddr+d));
+											debugout(outs);
+									}
+									debugout("  ");
+									for (d=0;d<16;d++)
+									{
+											temp=dreadmem(debugmemaddr+d);
+											if (temp<32) sprintf(outs,".");
+											else         sprintf(outs,"%c",temp);
+											debugout(outs);
+									}
+									debugmemaddr+=16;
+									debugout("\n");
+							}
+							break;
+							case 'd': case 'D':
+							if (params) sscanf(&ins[d],"%X",&debugdisaddr);
+							for (c=0;c<12;c++)
+							{
+									debugout("    ");
+									debugdisassemble();
+									debugout("\n");
+							}
+						}
                         break;
                         case 'r': case 'R':
-                        sprintf(outs,"    6502 registers :\n");
-                        debugout(outs);
-                        sprintf(outs,"    A=%02X X=%02X Y=%02X S=01%02X PC=%04X\n",a,x,y,s,pc);
-                        debugout(outs);
-                        sprintf(outs,"    Status : %c%c%c%c%c%c\n",(p.n)?'N':' ',(p.v)?'V':' ',(p.d)?'D':' ',(p.i)?'I':' ',(p.z)?'Z':' ',(p.c)?'C':' ');
-                        debugout(outs);
+						if (!strncasecmp(ins,"rs",2))
+						{
+								//register set
+                                if (!params) break;
+								sscanf(&ins[d],"%c %X",&debugregvalue, &debugmemvalue);
+								switch(debugregvalue)
+								{
+									case 'A': case 'a':
+									  a=debugmemvalue;
+										sprintf(outs,"A updated to %2X",debugmemvalue);
+									  break;
+									case 'X': case 'x':
+									  x=debugmemvalue;
+										sprintf(outs,"X updated to %2X",debugmemvalue);
+									  break;
+									case 'Y': case 'y':
+										sprintf(outs,"Y updated to %2X",debugmemvalue);
+									  break;
+									default:
+										sprintf(outs,"RS may only update A, X, Y");
+
+								}
+								debugout(outs);
+								debugout("\n");
+						}
+						else
+						{
+							sprintf(outs,"    6502 registers :\n");
+							debugout(outs);
+							sprintf(outs,"    A=%02X X=%02X Y=%02X S=01%02X PC=%04X\n",a,x,y,s,pc);
+							debugout(outs);
+							sprintf(outs,"    Status : %c%c%c%c%c%c\n",(p.n)?'N':' ',(p.v)?'V':' ',(p.d)?'D':' ',(p.i)?'I':' ',(p.z)?'Z':' ',(p.c)?'C':' ');
+							debugout(outs);
+						}
                         break;
                         case 's': case 'S':
                         if (params) sscanf(&ins[d],"%i",&debugstep);
@@ -743,39 +883,53 @@ void dodebugger()
                         case 'h': case 'H': case '?':
                         sprintf(outs,"\n    Debugger commands :\n\n");
                         debugout(outs);
-                        sprintf(outs,"    bclear n  - clear breakpoint n or breakpoint at n\n");
+                        sprintf(outs,"    bclear n       - clear breakpoint n or breakpoint at n\n");
                         debugout(outs);
-                        sprintf(outs,"    bclearr n - clear read breakpoint n or read breakpoint at n\n");
+                        sprintf(outs,"    bclearr n      - clear read breakpoint n or read breakpoint at n\n");
                         debugout(outs);
-                        sprintf(outs,"    bclearw n - clear write breakpoint n or write breakpoint at n\n");
+                        sprintf(outs,"    bclearw n      - clear write breakpoint n or write breakpoint at n\n");
                         debugout(outs);
-                        sprintf(outs,"    blist     - list current breakpoints\n");
+                        sprintf(outs,"    blist          - list current breakpoints\n");
                         debugout(outs);
-                        sprintf(outs,"    break n   - set a breakpoint at n\n");
+                        sprintf(outs,"    break n        - set a breakpoint at n\n");
                         debugout(outs);
-                        sprintf(outs,"    breakr n  - break on reads from address n\n");
+                        sprintf(outs,"    breakr n       - break on reads from address n\n");
                         debugout(outs);
-                        sprintf(outs,"    breakw n  - break on writes to address n\n");
+                        sprintf(outs,"    breakw n       - break on writes to address n\n");
                         debugout(outs);
-                        sprintf(outs,"    c         - continue running indefinitely\n");
+                        sprintf(outs,"    c              - continue running indefinitely\n");
                         debugout(outs);
-                        sprintf(outs,"    d [n]     - disassemble from address n\n");
+                        sprintf(outs,"    g [n]          - continue running at address n\n");
                         debugout(outs);
-                        sprintf(outs,"    m [n]     - memory dump from address n\n");
+                        sprintf(outs,"    d [n]          - disassemble from address n\n");
                         debugout(outs);
-                        sprintf(outs,"    q         - force emulator exit\n");
+                        sprintf(outs,"    m [n]          - memory dump from address n\n");
                         debugout(outs);
-                        sprintf(outs,"    r         - print 6502 registers\n");
+                        sprintf(outs,"    mw [n] [v]     - memory update address n with value v\n");
                         debugout(outs);
-                        sprintf(outs,"    s [n]     - step n instructions (or 1 if no parameter)\n\n");
+                        sprintf(outs,"    mf [s] [e] [v] - memory fill addresses between s and e with value v\n");
                         debugout(outs);
-                        sprintf(outs,"    watchr n  - watch reads from address n\n");
+                        sprintf(outs,"    mc [s] [e] [d] - memory copy addresses between s and e to d\n");
                         debugout(outs);
-                        sprintf(outs,"    watchw n  - watch writes to address n\n");
+                        sprintf(outs,"    ms [s] [e] [f] - save memory between s and e to file f\n");
                         debugout(outs);
-                        sprintf(outs,"    wclearr n - clear read watchpoint n or read watchpoint at n\n");
+                        sprintf(outs,"    ml [s] [f]     - load memory from file f to address s\n");
                         debugout(outs);
-                        sprintf(outs,"    wclearw n - clear write watchpoint n or write watchpoint at n\n");
+                        sprintf(outs,"    q              - force emulator exit\n");
+                        debugout(outs);
+                        sprintf(outs,"    r              - print 6502 registers\n");
+                        debugout(outs);
+                        sprintf(outs,"    rs [r] [n]     - set 6502 register r (A,X or Y) with value n\n");
+                        debugout(outs);
+                        sprintf(outs,"    s [n]          - step n instructions (or 1 if no parameter)\n\n");
+                        debugout(outs);
+                        sprintf(outs,"    watchr n       - watch reads from address n\n");
+                        debugout(outs);
+                        sprintf(outs,"    watchw n       - watch writes to address n\n");
+                        debugout(outs);
+                        sprintf(outs,"    wclearr n      - clear read watchpoint n or read watchpoint at n\n");
+                        debugout(outs);
+                        sprintf(outs,"    wclearw n      - clear write watchpoint n or write watchpoint at n\n");
                         debugout(outs);
                         break;
                 }
